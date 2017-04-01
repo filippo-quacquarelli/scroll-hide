@@ -1,23 +1,20 @@
 
 (function($) {
 
-    $.fn.scrollHide = function() {
+    $.fn.scrollHide = function(options) {
 
         var scrolling = false,
             previousTop = 0,
             currentTop = 0,
             $this = $(this);
 
-        var settings = $.extend({
-            scrollDelta: 5,
-            scrollOffset: 150,
-            scrollClass: 'js-scrollhide',
-            scrollClassHide: 'js-scrollhide-hide',
-            onScrollDown: function(arg) {
-              return arg;
-            },
-            onScrollUp: function(arg) {
-              return arg;
+        var settings = $.extend({ // opzioni del plugin
+            scrollDelta: 5, // la velocità di scroll per far scomparire il menu
+            scrollOffset: 200, // dopo quanto scompare il menu
+            scrollClass: 'scrh-header', // la classe da aggiungere al menu per gli stili css
+            scrollClassHide: 'scrh-hide', // la classe da aggiungere al menu per farlo scomparire
+            onScroll: function(context, msg) { // callback il primo argomento è this, il secondo è il messaggio da ritornare
+              return msg;
             },
         }, options );
 
@@ -33,18 +30,15 @@
         }
 
         function scrollHideClass(currentTop) {
-
             if (previousTop - currentTop > settings.scrollDelta) {
-                //if scrolling up
                 $this.removeClass(settings.scrollClassHide);
 
-                settings.onScrollUp( "up" );
+                settings.onScroll( $this, "up" );
 
             } else if (currentTop - previousTop > settings.scrollDelta && currentTop > settings.scrollOffset) {
-                //if scrolling down
                 $this.addClass(settings.scrollClassHide);
 
-                settings.onScrollDown( "down" );
+                settings.onScroll( $this, "down" );
             }
         }
 
@@ -52,10 +46,12 @@
             if( !scrolling ) {
                 scrolling = true;
 
-                (!window.requestAnimationFrame)
+                (!window.requestAnimationFrame) // per la retrocompatibilità verifichiamo che requestAnimationFrame sia disponibile
                 ? setTimeout(scrollValue, 250)
                 : requestAnimationFrame(scrollValue);
             }
         });
+        // rende il plugin "chainable"
+        return this;
     };
 })(jQuery);
